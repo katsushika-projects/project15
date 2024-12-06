@@ -1,0 +1,25 @@
+# ビルド成果物
+/bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Goモジュールキャッシュ
+/go/
+vendor/
+
+# テスト出力
+*.test
+
+# エディタやIDE設定
+.vscode/
+.idea/
+
+# システムファイル
+.DS_Store
+Thumbs.db
+
+# 機密情報や設定
+config/config.yaml
+*.env
