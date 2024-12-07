@@ -2,13 +2,19 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"my-gin-app/internal/controllers"
+	"gorm.io/gorm"
+	"my-gin-app/internal/handlers"
+	"my-gin-app/internal/repositories"
+	"my-gin-app/internal/services"
 )
 
-func AuthRoutes(r *gin.Engine) {
-	auth := r.Group("/auth")
+func AuthRoutes(r *gin.Engine, db *gorm.DB) {
+	userRepository := repositories.NewUserRepository(db)
+	authService := services.NewAuthService(userRepository)
+	authHandler := handlers.NewAuthHandler(authService)
+
+	authGroup := r.Group("/auth")
 	{
-		auth.POST("/login", controllers.Login)
-		auth.POST("/logout", controllers.logout)
+		authGroup.POST("/signup", authHandler.Signup)
 	}
 }
