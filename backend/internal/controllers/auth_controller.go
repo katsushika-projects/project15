@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/moto340/project15/backend/internal/services"
 )
 
 func Login(c *gin.Context) {
