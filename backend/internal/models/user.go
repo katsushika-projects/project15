@@ -1,20 +1,20 @@
 package models
 
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
 type User struct {
-	Username string
-	Password string
+	ID       string `gorm:"type:text;primaryKey"`
+	Email    string `gorm:"unique;not null"`
+	Password string `gorm:"not null"`
 }
 
-var users = []User{
-	{Username: "alice", Password: "password123"},
-	{Username: "bob", Password: "securepassword"},
-}
-
-var GetUser(username, password string) *User {
-	for _, user := range user {
-		if user.Username == username && user.Password == password {
-			return &user
-		}
+// BeforeCreateフックでUUIDを生成
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	if u.ID == "" {
+		u.ID = uuid.New().String() // UUIDを文字列として生成
 	}
 	return nil
 }
