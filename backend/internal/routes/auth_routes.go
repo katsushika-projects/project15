@@ -19,6 +19,8 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	authGroup := r.Group("/auth")
 	{
 		authGroup.POST("/signup", authHandler.Signup)
+		authGroup.POST("/login", authHandler.Login)
+		authGroup.POST("/logout", authHandler.Logout)
 	}
 }
 
