@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 
+	"github.com/moto340/project15/backend/internal/models"
+	"github.com/moto340/project15/backend/internal/repositories"
 	"golang.org/x/crypto/bcrypt"
-	"my-gin-app/internal/models"
-	"my-gin-app/internal/repositories"
 )
 
 type AuthService struct {

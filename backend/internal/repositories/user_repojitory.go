@@ -1,8 +1,8 @@
 package repositories
 
 import (
+	"github.com/moto340/project15/backend/internal/models"
 	"gorm.io/gorm"
-	"my-gin-app/internal/models"
 )
 
 type UserRepository struct {

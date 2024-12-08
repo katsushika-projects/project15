@@ -1,7 +1,7 @@
 package db
 
 import (
-	"my-gin-app/internal/models"
+	"github.com/moto340/project15/backend/internal/models"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

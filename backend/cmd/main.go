@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"my-gin-app/internal/db"
-	"my-gin-app/internal/routes"
+	"github.com/moto340/project15/backend/internal/db"
+	"github.com/moto340/project15/backend/internal/routes"
 )
 
 func main() {
@@ -15,6 +15,7 @@ func main() {
 
 	// サインアップルートを登録
 	routes.AuthRoutes(r, database)
+	routes.AdminRoutes(r, database)
 
 	r.Run(":8080") // サーバーを8080ポートで起動
 }

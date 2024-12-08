@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"my-gin-app/internal/services"
+	"github.com/moto340/project15/backend/internal/services"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
