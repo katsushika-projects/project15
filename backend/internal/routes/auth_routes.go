@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/moto340/project15/backend/internal/handlers"
+	"github.com/moto340/project15/backend/internal/middlewares"
 	"github.com/moto340/project15/backend/internal/models"
 	"github.com/moto340/project15/backend/internal/repositories"
 	"github.com/moto340/project15/backend/internal/services"
@@ -36,4 +37,14 @@ func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 			c.JSON(http.StatusOK, users)
 		})
 	}
+}
+
+func ProtectedRoutes(r *gin.Engine) {
+	protected := r.Group("/protected")
+	protected.Use(middlewares.AuthMiddleware()) // ミドルウェアを適用
+
+	protected.GET("/profile", func(c *gin.Context) {
+		userID, _ := c.Get("user_id")
+		c.JSON(http.StatusOK, gin.H{"message": "This is a protected route", "user_id": userID})
+	})
 }

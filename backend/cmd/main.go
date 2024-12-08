@@ -14,6 +14,7 @@ func main() {
 	r := gin.Default()
 
 	// サインアップルートを登録
+	routes.ProtectedRoutes(r, database)
 	routes.AuthRoutes(r, database)
 	routes.AdminRoutes(r, database)
 

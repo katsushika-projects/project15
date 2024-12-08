@@ -40,6 +40,15 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+func GenerateToken(userID uint) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": userID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // 有効期限24時間
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte("your_secret_key")) // シークレットキーで署名
+}
+
 func (h *AuthHandler) Login(c *gin.Context) {
 	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -53,8 +62,18 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// トークンの生成やセッション管理をここで行う
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "user": user})
+	// トークン生成
+	token, err := GenerateToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+
+	// レスポンスにトークンを含める
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"token":   token,
+	})
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
