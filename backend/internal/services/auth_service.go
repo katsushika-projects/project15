@@ -16,7 +16,12 @@ func NewAuthService(userRepo *repositories.UserRepository) *AuthService {
 	return &AuthService{userRepository: userRepo}
 }
 
-func (s *AuthService) Signup(email, password string) error {
+func (s *AuthService) Signup(username, password string) error {
+	// ユーザー名の重複確認
+	if _, err := s.userRepository.FindByUsername(username); err == nil {
+		return errors.New("username already exists")
+	}
+
 	// ハッシュ化されたパスワードを生成
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -25,7 +30,7 @@ func (s *AuthService) Signup(email, password string) error {
 
 	// ユーザーを作成
 	user := models.User{
-		Email:    email,
+		Username: username,
 		Password: string(hashedPassword),
 	}
 
