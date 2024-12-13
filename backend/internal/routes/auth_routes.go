@@ -11,12 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func AuthRoutes(r *gin.Engine, db *gorm.DB) {
+func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	userRepository := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepository)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	r.POST("/signup", authHandler.Signup)
+	r.POST("/register", authHandler.Signup)
 }
 
 func AdminRoutes(r *gin.Engine, db *gorm.DB) {
