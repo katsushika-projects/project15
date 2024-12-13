@@ -16,10 +16,7 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	authService := services.NewAuthService(userRepository)
 	authHandler := handlers.NewAuthHandler(authService)
 
-	authGroup := r.Group("/auth")
-	{
-		authGroup.POST("/signup", authHandler.Signup)
-	}
+	r.POST("/signup", authHandler.Signup)
 }
 
 func AdminRoutes(r *gin.Engine, db *gorm.DB) {
