@@ -14,7 +14,7 @@ func main() {
 	r := gin.Default()
 
 	// サインアップルートを登録
-	routes.AuthRoutes(r, database)
+	routes.RegisterRoutes(r, database)
 	routes.AdminRoutes(r, database)
 
 	r.Run(":8080") // サーバーを8080ポートで起動
