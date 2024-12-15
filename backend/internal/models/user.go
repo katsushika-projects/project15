@@ -6,9 +6,10 @@ import (
 )
 
 type User struct {
-	ID       string `gorm:"type:text;primaryKey"`
-	Username string `gorm:"not null;unique"`
-	Password string `gorm:"not null"`
+	ID           string `gorm:"type:text;primaryKey"`
+	Username     string `gorm:"not null;unique"`
+	Password     string `gorm:"not null"`
+	RefreshToken string
 }
 
 // BeforeCreateフックでUUIDを生成

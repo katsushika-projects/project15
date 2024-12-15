@@ -49,3 +49,37 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 }
+
+type LoginInput struct {
+	Username string `json:"username" binding:"required,username"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+func (h *AuthHandler) Login(c *gin.Context) {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		// このリクエストのバリデーションに対してのみカスタムルールを登録
+		v.RegisterValidation("username", validateUsername)
+	}
+
+	var input LoginInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.authService.Login(input.Username, input.Password); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	accessToken, refreshToken, err := h.authService.GenerateTokens(input.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}

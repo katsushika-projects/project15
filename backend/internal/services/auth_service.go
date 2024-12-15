@@ -2,7 +2,10 @@ package services
 
 import (
 	"errors"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/moto340/project15/backend/internal/models"
 	"github.com/moto340/project15/backend/internal/repositories"
 	"golang.org/x/crypto/bcrypt"
@@ -39,4 +42,50 @@ func (s *AuthService) Signup(username, password string) error {
 	}
 
 	return nil
+}
+
+func (s *AuthService) Login(username, password string) error {
+	user, err := s.userRepository.FindByUsername(username)
+	if err != nil {
+		return errors.New("username doesn't exist")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return errors.New("password doesn't match")
+	}
+
+	return nil
+}
+
+var accessSecret = []byte(os.Getenv("ACCESS_SECRET_KEY"))
+var refreshSecret = []byte(os.Getenv("REFRESH_SECRET_KEY"))
+
+func (s *AuthService) GenerateTokens(username string) (accessToken, refreshToken string, err error) {
+	user, _ := s.userRepository.FindByUsername(username)
+	accessClaims := jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Minute * 15).Unix(),
+	}
+	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString(accessSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	// リフレッシュトークン
+	refreshClaims := jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 有効期限7日
+	}
+
+	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(refreshSecret)
+	if err != nil {
+		return "", "", err
+	}
+
+	err = s.userRepository.CreateAccessToken(user, refreshToken)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }

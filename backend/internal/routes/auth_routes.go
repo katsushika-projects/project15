@@ -19,6 +19,18 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	r.POST("/register", authHandler.Signup)
 }
 
+func AuthRoutes(r *gin.Engine, db *gorm.DB) {
+	userRepository := repositories.NewUserRepository(db)
+	authService := services.NewAuthService(userRepository)
+	authHandler := handlers.NewAuthHandler(authService)
+
+	auth := r.Group("/auth")
+	{
+		auth.POST("/login", authHandler.Login)
+		//	auth.POST("/logout", authHandler.Logout)
+	}
+}
+
 func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 	admin := r.Group("/admin")
 	{

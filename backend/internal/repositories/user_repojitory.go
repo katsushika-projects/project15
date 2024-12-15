@@ -24,3 +24,13 @@ func (r *UserRepository) FindByUsername(username string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *UserRepository) CreateAccessToken(user *models.User, refreshToken string) error {
+	user.RefreshToken = refreshToken
+	err := r.db.Save(&user).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
