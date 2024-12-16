@@ -7,9 +7,13 @@ import (
 
 type User struct {
 	ID           string `gorm:"type:text;primaryKey"`
-	Username     string `gorm:"not null;unique"`
-	Password     string `gorm:"not null"`
-	RefreshToken string
+	Username     string `gorm:"not null;unique;column:username"`
+	Password     string `gorm:"not null;column:password"`
+	RefreshToken string `gorm:"column:refresh_token"`
+}
+
+type BlackList struct {
+	AccessToken string `gorm:"column:access_token"`
 }
 
 // BeforeCreateフックでUUIDを生成

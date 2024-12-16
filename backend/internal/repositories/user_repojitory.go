@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/moto340/project15/backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -33,4 +35,38 @@ func (r *UserRepository) CreateAccessToken(user *models.User, refreshToken strin
 	}
 
 	return nil
+}
+
+func (r *UserRepository) UpdateRefreshToken(user_id string) error {
+	if err := r.db.Model(&models.User{}).Where("id = ?", user_id).Update("refresh_token", "").Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) PostBlackList(access_token string) error {
+	blacklist := models.BlackList{
+		AccessToken: access_token,
+	}
+	if err := r.db.Model(&models.BlackList{}).Create(&blacklist).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *UserRepository) AuthBlackList(token string) error {
+	var blacklist models.BlackList
+	if err := r.db.Model(&models.BlackList{}).Where("access_token = ?", token).First(&blacklist).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// レコードが見つからない場合は正常ケース
+			return nil
+		}
+		// その他のエラーはそのまま返す
+		return err
+	}
+
+	// レコードが見つかった場合
+	return errors.New("token already exists")
 }

@@ -1,8 +1,11 @@
 package services
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -88,4 +91,48 @@ func (s *AuthService) GenerateTokens(username string) (accessToken, refreshToken
 	}
 
 	return accessToken, refreshToken, nil
+}
+
+func parseJWT(token string) (jwt.MapClaims, error) {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return nil, errors.New("Invalid token format")
+	}
+
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, err
+	}
+
+	var payload jwt.MapClaims
+	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
+		return nil, err
+	}
+
+	return payload, nil
+}
+
+func (s *AuthService) RefreshTokenDisable(token string) error {
+	token_string := strings.TrimPrefix(token, "Bearer ")
+
+	payload, err1 := parseJWT(token_string)
+	if err1 != nil {
+		return err1
+	}
+
+	user_id := payload["user_id"].(string)
+	if err := s.userRepository.UpdateRefreshToken(user_id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *AuthService) AccessTokenDisable(access_token string) error {
+	// アクセストークンをブラックリストに入れる
+	if err := s.userRepository.PostBlackList(access_token); err != nil {
+		return err
+	}
+
+	return nil
 }

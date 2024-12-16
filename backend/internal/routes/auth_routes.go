@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/moto340/project15/backend/internal/handlers"
+	"github.com/moto340/project15/backend/internal/middlewares"
 	"github.com/moto340/project15/backend/internal/models"
 	"github.com/moto340/project15/backend/internal/repositories"
 	"github.com/moto340/project15/backend/internal/services"
@@ -14,7 +15,8 @@ import (
 func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	userRepository := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepository)
-	authHandler := handlers.NewAuthHandler(authService)
+	authMiddleware := middlewares.NewAuthMiddleware(userRepository)
+	authHandler := handlers.NewAuthHandler(authService, authMiddleware)
 
 	r.POST("/register", authHandler.Signup)
 }
@@ -22,12 +24,13 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	userRepository := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepository)
-	authHandler := handlers.NewAuthHandler(authService)
+	authMiddleware := middlewares.NewAuthMiddleware(userRepository)
+	authHandler := handlers.NewAuthHandler(authService, authMiddleware)
 
 	auth := r.Group("/auth")
 	{
 		auth.POST("/login", authHandler.Login)
-		//	auth.POST("/logout", authHandler.Logout)
+		auth.POST("/logout", authHandler.Logout)
 	}
 }
 

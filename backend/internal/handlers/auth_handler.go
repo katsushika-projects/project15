@@ -7,15 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/moto340/project15/backend/internal/middlewares"
 	"github.com/moto340/project15/backend/internal/services"
 )
 
 type AuthHandler struct {
-	authService *services.AuthService
+	authService    *services.AuthService
+	authMiddleware *middlewares.AuthMiddleware
 }
 
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService *services.AuthService, authMiddleware *middlewares.AuthMiddleware) *AuthHandler {
+	return &AuthHandler{authService: authService, authMiddleware: authMiddleware}
 }
 
 type SignupInput struct {
@@ -82,4 +84,25 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 	})
+}
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.authService.RefreshTokenDisable(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.authService.AccessTokenDisable(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Logout successfully"})
+
 }
