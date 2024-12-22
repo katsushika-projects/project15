@@ -34,6 +34,22 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	}
 }
 
+func GroupRoutes(r *gin.Engine, db *gorm.DB) {
+	groupRepository := repositories.NewGroupRepository(db)
+	userRepository := repositories.NewUserRepository(db)
+	groupService := services.NewGroupService(groupRepository)
+	authMiddleware := middlewares.NewAuthMiddleware(userRepository)
+	groupHandler := handlers.NewGroupHandler(groupService, authMiddleware)
+
+	groups := r.Group("/groups")
+	{
+		groups.POST("", groupHandler.CreateGroup)
+		groups.GET("")
+		groups.GET("/:id")
+		groups.POST("/:id/fields")
+	}
+}
+
 func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 	admin := r.Group("/admin")
 	{
@@ -44,6 +60,15 @@ func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 				return
 			}
 			c.JSON(http.StatusOK, users)
+		})
+
+		admin.GET("/groups", func(c *gin.Context) {
+			var groups []models.Group
+			if err := db.Find(&groups).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+				return
+			}
+			c.JSON(http.StatusOK, groups)
 		})
 	}
 }
