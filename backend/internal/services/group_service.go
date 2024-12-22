@@ -31,3 +31,16 @@ func (s *GroupService) CreateGroup(university, fculty, department, grade string)
 
 	return nil
 }
+
+func (s *GroupService) DeleteGroup(id string) error {
+	group, err := s.groupRepository.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if err1 := s.groupRepository.DeleteGroup(group); err1 != nil {
+		return err1
+	}
+
+	return nil
+}

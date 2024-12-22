@@ -19,7 +19,11 @@ func (r *GroupRepository) CreateGroup(group *models.Group) error {
 	return r.db.Create(group).Error
 }
 
-func (r *GroupRepository) FindByGroup(university string, fculty string, department string, grade string) error {
+func (r *GroupRepository) DeleteGroup(group *models.Group) error {
+	return r.db.Delete(group).Error
+}
+
+func (r *GroupRepository) FindByGroup(university, fculty, department, grade string) error {
 	var group models.Group
 	if err := r.db.Where("university = ? AND fculty = ? AND department = ? AND grade = ?", university, fculty, department, grade).First(&group).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -28,5 +32,14 @@ func (r *GroupRepository) FindByGroup(university string, fculty string, departme
 			return err
 		}
 	}
+
 	return errors.New("group already exits")
+}
+
+func (r *GroupRepository) FindById(id string) (*models.Group, error) {
+	var group models.Group
+	if err := r.db.Where("id = ?", id).First(&group).Error; err != nil {
+		return nil, err
+	}
+	return &group, nil
 }

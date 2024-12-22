@@ -39,3 +39,13 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Geoup Create successfully"})
 
 }
+
+func (h *GroupHandler) DeleteGroup(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.groupService.DeleteGroup(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Geoup Delete successfully"})
+}

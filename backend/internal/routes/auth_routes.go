@@ -44,6 +44,7 @@ func GroupRoutes(r *gin.Engine, db *gorm.DB) {
 	groups := r.Group("/groups")
 	{
 		groups.POST("", groupHandler.CreateGroup)
+		groups.DELETE("/:id", groupHandler.DeleteGroup)
 		groups.GET("")
 		groups.GET("/:id")
 		groups.POST("/:id/fields")
