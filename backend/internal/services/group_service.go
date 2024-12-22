@@ -44,3 +44,12 @@ func (s *GroupService) DeleteGroup(id string) error {
 
 	return nil
 }
+
+func (s *GroupService) GetGroups(university, fculty, department, grade string) ([]*models.Group, error) {
+	groups, err := s.groupRepository.FindGroup(university, fculty, department, grade)
+	if err != nil {
+		return nil, err
+	}
+
+	return groups, nil
+}

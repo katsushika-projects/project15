@@ -10,11 +10,11 @@ import (
 
 type GroupHandler struct {
 	groupService   *services.GroupService
-	authMidlleware *middlewares.AuthMiddleware
+	authMiddleware *middlewares.AuthMiddleware
 }
 
-func NewGroupHandler(groupService *services.GroupService, authMidlleware *middlewares.AuthMiddleware) *GroupHandler {
-	return &GroupHandler{groupService: groupService, authMidlleware: authMidlleware}
+func NewGroupHandler(groupService *services.GroupService, authMiddleware *middlewares.AuthMiddleware) *GroupHandler {
+	return &GroupHandler{groupService: groupService, authMiddleware: authMiddleware}
 }
 
 type GroupInput struct {
@@ -25,6 +25,12 @@ type GroupInput struct {
 }
 
 func (h *GroupHandler) CreateGroup(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	var input GroupInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -41,6 +47,12 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 }
 
 func (h *GroupHandler) DeleteGroup(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	id := c.Param("id")
 	if err := h.groupService.DeleteGroup(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -48,4 +60,28 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Geoup Delete successfully"})
+}
+
+func (h *GroupHandler) GetGroups(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var input GroupInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	groups, err := h.groupService.GetGroups(input.University, input.Fculty, input.Department, input.Grade)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"groups": groups,
+	})
 }

@@ -96,7 +96,7 @@ func (s *AuthService) GenerateTokens(username string) (accessToken, refreshToken
 func parseJWT(token string) (jwt.MapClaims, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
-		return nil, errors.New("Invalid token format")
+		return nil, errors.New("invalid token format")
 	}
 
 	payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
