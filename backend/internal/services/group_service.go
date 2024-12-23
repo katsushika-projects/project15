@@ -53,3 +53,12 @@ func (s *GroupService) GetGroups(university, fculty, department, grade string) (
 
 	return groups, nil
 }
+
+func (s *GroupService) GetGroup(id string) (*models.Group, error) {
+	group, err := s.groupRepository.FindById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}

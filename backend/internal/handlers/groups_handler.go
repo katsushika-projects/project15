@@ -85,3 +85,22 @@ func (h *GroupHandler) GetGroups(c *gin.Context) {
 		"groups": groups,
 	})
 }
+
+func (h *GroupHandler) GetGroup(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+	group, err := h.groupService.GetGroup(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"groups": group,
+	})
+}
