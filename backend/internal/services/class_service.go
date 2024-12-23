@@ -30,3 +30,16 @@ func (s *ClassService) CreateClass(classname, group_id string) error {
 
 	return nil
 }
+
+func (s *ClassService) DeleteClass(id string) error {
+	class, err := s.classService.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if err1 := s.classService.DeleteClass(class); err1 != nil {
+		return err1
+	}
+
+	return nil
+}

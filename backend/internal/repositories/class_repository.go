@@ -30,3 +30,15 @@ func (r *ClassRepository) FindByClass(classname, group_id string) error {
 
 	return errors.New("class already exist")
 }
+
+func (r *ClassRepository) FindById(id string) (*models.Class, error) {
+	var class models.Class
+	if err := r.db.Where("id = ?", id).First(&class).Error; err != nil {
+		return nil, err
+	}
+	return &class, nil
+}
+
+func (r *ClassRepository) DeleteClass(class *models.Class) error {
+	return r.db.Delete(class).Error
+}

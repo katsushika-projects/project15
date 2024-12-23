@@ -59,10 +59,10 @@ func ClassRoutes(r *gin.Engine, db *gorm.DB) {
 
 	classes := r.Group("/classes")
 	{
-		classes.POST("", classHandler.CreateClass) //授業作成
-		classes.GET("/:id")                        //授業詳細取得
-		classes.DELETE("/:id")                     //授業削除
-		classes.GET("")                            //授業一覧取得
+		classes.POST("", classHandler.CreateClass)       //授業作成
+		classes.GET("/:id")                              //授業詳細取得
+		classes.DELETE("/:id", classHandler.DeleteClass) //授業削除
+		classes.GET("")                                  //授業一覧取得
 	}
 }
 

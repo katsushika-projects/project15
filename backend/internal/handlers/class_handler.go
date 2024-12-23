@@ -43,3 +43,19 @@ func (h *ClassHandler) CreateClass(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Class Create successfully"})
 
 }
+
+func (h *ClassHandler) DeleteClass(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+	if err := h.classService.DeleteClass(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Class delete successfully"})
+}

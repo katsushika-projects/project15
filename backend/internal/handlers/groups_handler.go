@@ -59,7 +59,7 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Geoup Delete successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Group delete successfully"})
 }
 
 func (h *GroupHandler) GetGroups(c *gin.Context) {
