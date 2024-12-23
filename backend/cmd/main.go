@@ -17,6 +17,7 @@ func main() {
 	routes.RegisterRoutes(r, database)
 	routes.AuthRoutes(r, database)
 	routes.GroupRoutes(r, database)
+	routes.ClassRoutes(r, database)
 	routes.AdminRoutes(r, database)
 
 	r.Run(":8080") // サーバーを8080ポートで起動

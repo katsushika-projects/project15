@@ -34,7 +34,7 @@ func (r *GroupRepository) FindByGroup(university, fculty, department, grade stri
 		}
 	}
 
-	return errors.New("group already exits")
+	return errors.New("group already exist")
 }
 
 func (r *GroupRepository) FindById(id string) (*models.Group, error) {

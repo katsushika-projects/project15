@@ -51,12 +51,18 @@ func GroupRoutes(r *gin.Engine, db *gorm.DB) {
 }
 
 func ClassRoutes(r *gin.Engine, db *gorm.DB) {
+	classRepository := repositories.NewClassRepository(db)
+	userRepository := repositories.NewUserRepository(db)
+	classService := services.NewClassService(classRepository)
+	authMiddleware := middlewares.NewAuthMiddleware(userRepository)
+	classHandler := handlers.NewClassHandler(classService, authMiddleware)
+
 	classes := r.Group("/classes")
 	{
-		classes.POST("")       //授業作成
-		classes.GET("/:id")    //授業詳細取得
-		classes.DELETE("/:id") //授業削除
-		classes.GET("")        //授業一覧取得
+		classes.POST("", classHandler.CreateClass) //授業作成
+		classes.GET("/:id")                        //授業詳細取得
+		classes.DELETE("/:id")                     //授業削除
+		classes.GET("")                            //授業一覧取得
 	}
 }
 
@@ -79,6 +85,15 @@ func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 				return
 			}
 			c.JSON(http.StatusOK, groups)
+		})
+
+		admin.GET("/classes", func(c *gin.Context) {
+			var classes []models.Class
+			if err := db.Find(&classes).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+				return
+			}
+			c.JSON(http.StatusOK, classes)
 		})
 	}
 }
