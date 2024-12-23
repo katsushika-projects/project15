@@ -6,11 +6,12 @@ import (
 )
 
 type Group struct {
-	ID         string `gorm:"type:text;primaryKey"`
-	University string `gorm:"not null;column:university"`
-	Fculty     string `gorm:"not null;column:fculty"`
-	Department string `gorm:"not null;column:department"`
-	Grade      string `gorm:"not null;column:grade"`
+	ID         string  `gorm:"type:text;primaryKey"`
+	University string  `gorm:"not null;column:university"`
+	Fculty     string  `gorm:"not null;column:fculty"`
+	Department string  `gorm:"not null;column:department"`
+	Grade      string  `gorm:"not null;column:grade"`
+	Classes    []Class `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 func (u *Group) BeforeCreate(tx *gorm.DB) (err error) {
