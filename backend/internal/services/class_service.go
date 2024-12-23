@@ -43,3 +43,12 @@ func (s *ClassService) DeleteClass(id string) error {
 
 	return nil
 }
+
+func (s *ClassService) GetClass(id string) (*models.Class, error) {
+	class, err := s.classService.FindById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return class, nil
+}

@@ -101,6 +101,6 @@ func (h *GroupHandler) GetGroup(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"groups": group,
+		"group": group,
 	})
 }
