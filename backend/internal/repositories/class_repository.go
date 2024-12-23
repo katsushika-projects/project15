@@ -42,3 +42,17 @@ func (r *ClassRepository) FindById(id string) (*models.Class, error) {
 func (r *ClassRepository) DeleteClass(class *models.Class) error {
 	return r.db.Delete(class).Error
 }
+
+func (r *ClassRepository) FindClasses(group_id string) ([]*models.Class, error) {
+	//該当するグループインスタンスを全て取得
+	var classes []*models.Class
+	if err := r.db.Where("group_id = ?", group_id).Find(&classes).Error; err != nil {
+		return nil, err
+	}
+
+	if len(classes) == 0 {
+		return nil, errors.New("groups don't exist")
+	}
+
+	return classes, nil
+}

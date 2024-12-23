@@ -6,16 +6,16 @@ import (
 )
 
 type ClassService struct {
-	classService *repositories.ClassRepository
+	classRepository *repositories.ClassRepository
 }
 
 func NewClassService(classRepo *repositories.ClassRepository) *ClassService {
-	return &ClassService{classService: classRepo}
+	return &ClassService{classRepository: classRepo}
 }
 
 func (s *ClassService) CreateClass(classname, group_id string) error {
 	//classの重複確認
-	if err := s.classService.FindByClass(classname, group_id); err != nil {
+	if err := s.classRepository.FindByClass(classname, group_id); err != nil {
 		return err
 	}
 
@@ -24,7 +24,7 @@ func (s *ClassService) CreateClass(classname, group_id string) error {
 		GroupID:   group_id,
 	}
 
-	if err := s.classService.CreateClass(&class); err != nil {
+	if err := s.classRepository.CreateClass(&class); err != nil {
 		return err
 	}
 
@@ -32,12 +32,12 @@ func (s *ClassService) CreateClass(classname, group_id string) error {
 }
 
 func (s *ClassService) DeleteClass(id string) error {
-	class, err := s.classService.FindById(id)
+	class, err := s.classRepository.FindById(id)
 	if err != nil {
 		return err
 	}
 
-	if err1 := s.classService.DeleteClass(class); err1 != nil {
+	if err1 := s.classRepository.DeleteClass(class); err1 != nil {
 		return err1
 	}
 
@@ -45,10 +45,19 @@ func (s *ClassService) DeleteClass(id string) error {
 }
 
 func (s *ClassService) GetClass(id string) (*models.Class, error) {
-	class, err := s.classService.FindById(id)
+	class, err := s.classRepository.FindById(id)
 	if err != nil {
 		return nil, err
 	}
 
 	return class, nil
+}
+
+func (s *ClassService) GetClasses(group_id string) ([]*models.Class, error) {
+	classes, err := s.classRepository.FindClasses(group_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return classes, nil
 }

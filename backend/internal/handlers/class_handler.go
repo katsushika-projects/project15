@@ -78,3 +78,27 @@ func (h *ClassHandler) GetClass(c *gin.Context) {
 		"class": class,
 	})
 }
+
+func (h *ClassHandler) GetClasses(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var input ClassInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	classes, err := h.classService.GetClasses(input.GroupID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"groups": classes,
+	})
+}
