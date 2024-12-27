@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // HTTPリクエスト用
+import 'dart:convert'; // JSON操作用
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key}); // constを追加
@@ -13,15 +15,15 @@ class AuthPage extends StatelessWidget {
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           bottom: const TabBar( // constを追加
             tabs: [
-              Tab(text: "Login"), // constの適用は不要（既に不変）
-              Tab(text: "SignUp"), // constの適用は不要（既に不変）
+              Tab(text: "Login"),
+              Tab(text: "SignUp"),
             ],
           ),
         ),
-        body: const TabBarView( // constを追加
+        body: const TabBarView(
           children: [
-            LoginForm(), // constを追加可能
-            SignUpForm(), // constを追加可能
+            LoginForm(),
+            SignUpForm(),
           ],
         ),
       ),
@@ -30,37 +32,110 @@ class AuthPage extends StatelessWidget {
 }
 
 // Loginフォーム
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({super.key}); // constを追加
+
+  @override
+  LoginFormState createState() => LoginFormState();
+}
+
+class LoginFormState extends State<LoginForm> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (username.isEmpty || password.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill alll fields')),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+  final url = Uri.parse('http://localhost:8080/auth/login');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+    
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['access_token'].isEmpty || data['refresh_token'].isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['access_token'])),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server error: ${response.statusCode}')),
+        );
+      }
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error: $e')),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0), // constを追加
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const TextField(
-            decoration: InputDecoration(
+          TextField(
+            controller: _usernameController,
+            decoration: const InputDecoration(
               labelText: 'Username',
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 16), // constを追加
-          const TextField(
-            decoration: InputDecoration(
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
             obscureText: true,
           ),
-          const SizedBox(height: 20), // constを追加
-          ElevatedButton(
-            onPressed: () {
-              print("Login pressed");
-            },
-            child: const Text("Login"), // constを追加
-          ),
+          const SizedBox(height: 20),
+          _isLoading
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: _login,
+                  child: const Text("Login"),
+                ),
         ],
       ),
     );
@@ -68,37 +143,111 @@ class LoginForm extends StatelessWidget {
 }
 
 // SignUpフォーム
-class SignUpForm extends StatelessWidget {
+class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key}); // constを追加
+
+  @override
+  SignUpFormState createState() => SignUpFormState();
+}
+
+class SignUpFormState extends State<SignUpForm> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _signUp() async {
+  final String username = _usernameController.text.trim();
+  final String password = _passwordController.text.trim();
+
+  if (username.isEmpty || password.isEmpty) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+    }
+    return;
+  }
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  final url = Uri.parse('http://localhost:8080/register');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'username': username, 'password': password}),
+    );
+
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      if (data['message'] == "User registered successfully") {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+          DefaultTabController.of(context).animateTo(0);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server error: ${response.statusCode}')),
+        );
+      }
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error: $e')),
+      );
+    }
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+}
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0), // constを追加
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const TextField(
-            decoration: InputDecoration(
+          TextField(
+            controller: _usernameController,
+            decoration: const InputDecoration(
               labelText: 'Username',
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 16), // constを追加
-          const TextField(
-            decoration: InputDecoration(
+          const SizedBox(height: 16),
+          TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
             obscureText: true,
           ),
-          const SizedBox(height: 20), // constを追加
-          ElevatedButton(
-            onPressed: () {
-              print("SignUp pressed");
-            },
-            child: const Text("SignUp"), // constを追加
-          ),
+          const SizedBox(height: 20),
+          _isLoading
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: _signUp,
+                  child: const Text("SignUp"),
+                ),
         ],
       ),
     );
