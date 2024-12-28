@@ -66,6 +66,20 @@ func ClassRoutes(r *gin.Engine, db *gorm.DB) {
 	}
 }
 
+func Discription(r *gin.Engine, db *gorm.DB) {
+	discriptRepository := repositories.NewDiscriptRepository(db)
+	userRepository := repositories.NewUserRepository(db)
+	discriptService := services.NewDiscriptService(discriptRepository)
+	authMiddleware := middlewares.NewAuthMiddleware(userRepository)
+	discriptHandler := handlers.NewDiscriptHandler(discriptService, authMiddleware)
+
+	discription := r.Group("/discription")
+	{
+		discription.POST("", discriptHandler.CreateDiscript) //質問、回答投稿
+		discription.GET("")                                  //質問一覧取得
+	}
+}
+
 func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 	admin := r.Group("/admin")
 	{
@@ -81,7 +95,7 @@ func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 		admin.GET("/groups", func(c *gin.Context) {
 			var groups []models.Group
 			if err := db.Find(&groups).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch groups"})
 				return
 			}
 			c.JSON(http.StatusOK, groups)
@@ -90,10 +104,19 @@ func AdminRoutes(r *gin.Engine, db *gorm.DB) {
 		admin.GET("/classes", func(c *gin.Context) {
 			var classes []models.Class
 			if err := db.Find(&classes).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch classes"})
 				return
 			}
 			c.JSON(http.StatusOK, classes)
+		})
+
+		admin.GET("/discription", func(c *gin.Context) {
+			var discription []models.Thread
+			if err := db.Find(&discription).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch discription"})
+				return
+			}
+			c.JSON(http.StatusOK, discription)
 		})
 	}
 }
