@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // HTTPリクエスト用
 import 'dart:convert'; // JSON操作用
+import 'search.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key}); // constを追加
@@ -71,10 +72,13 @@ class LoginFormState extends State<LoginForm> {
     
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      if (data['access_token'].isEmpty || data['refresh_token'].isEmpty) {
+      if (data['access_token'].isNotEmpty || data['refresh_token'].isNotEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['access_token'])),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SearchForm(),
+            ),
           );
         }
       } else {
