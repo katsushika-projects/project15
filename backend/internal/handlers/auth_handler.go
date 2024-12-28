@@ -106,3 +106,37 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Logout successfully"})
 
 }
+
+type RefreshToken struct {
+	Username string `json:"username" binding:"required,username"`
+}
+
+func (h *AuthHandler) RefreshToken(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthRefreshToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		// このリクエストのバリデーションに対してのみカスタムルールを登録
+		v.RegisterValidation("username", validateUsername)
+	}
+
+	var input RefreshToken
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	accessToken, refreshToken, err := h.authService.GenerateTokens(input.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+	})
+}

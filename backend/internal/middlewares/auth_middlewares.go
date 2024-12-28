@@ -20,6 +20,7 @@ func NewAuthMiddleware(userRepo *repositories.UserRepository) *AuthMiddleware {
 }
 
 var accessSecret = []byte(os.Getenv("ACCESS_SECRET_KEY"))
+var refreshSecret = []byte(os.Getenv("REFRESH_SECRET_KEY"))
 
 func parseJWT(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -57,6 +58,58 @@ func (m *AuthMiddleware) AuthAccessToken(access_token string) error {
 
 	// トークンを解析・検証
 	payload, err := parseJWT(tokenString)
+	if err != nil {
+		return err
+	}
+
+	// expの検証
+	exp, ok := payload["exp"].(float64)
+	if !ok {
+		return errors.New("exp claim missing or not a float64")
+	}
+	if int64(exp) < time.Now().Unix() {
+		return errors.New("token has expired")
+	}
+
+	return nil
+}
+
+func parseRefreshJWT(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return refreshSecret, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, errors.New("invalid token")
+}
+
+func (m *AuthMiddleware) AuthRefreshToken(refresh_token string) error {
+	if refresh_token == "" {
+		return errors.New("access token does not exist")
+	}
+
+	tokenString := strings.TrimPrefix(refresh_token, "Bearer ")
+	if tokenString == refresh_token {
+		return errors.New("invalid token format")
+	}
+
+	// トークンがブラックリストにあるか確認
+	if err := m.userRepository.AuthBlackList(tokenString); err != nil {
+		return err
+	}
+
+	// トークンを解析・検証
+	payload, err := parseRefreshJWT(tokenString)
 	if err != nil {
 		return err
 	}

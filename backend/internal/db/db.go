@@ -17,5 +17,6 @@ func InitDB() *gorm.DB {
 	db.AutoMigrate(&models.BlackList{})
 	db.AutoMigrate(&models.Group{})
 	db.AutoMigrate(&models.Class{})
+	db.AutoMigrate(&models.Thread{})
 	return db
 }
