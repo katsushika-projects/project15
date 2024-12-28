@@ -42,3 +42,31 @@ func (h *DiscriptHandler) CreateDiscript(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Discript Create successfully"})
 }
+
+type DiscriptsInput struct {
+	ClassID string `json:"class_id"`
+}
+
+func (h *DiscriptHandler) GetDiscripts(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var input DiscriptsInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	discripts, err := h.discriptService.GetDiscripts(input.ClassID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"groups": discripts,
+	})
+}

@@ -25,3 +25,12 @@ func (s *DiscriptService) CreateDiscript(discript, class_id string) error {
 
 	return nil
 }
+
+func (s *DiscriptService) GetDiscripts(class_id string) ([]*models.Thread, error) {
+	discripts, err := s.discriptRepository.GetDiscripts(class_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return discripts, nil
+}
