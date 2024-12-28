@@ -45,9 +45,9 @@ func (r *UserRepository) UpdateRefreshToken(user_id string) error {
 	return nil
 }
 
-func (r *UserRepository) PostBlackList(access_token string) error {
+func (r *UserRepository) PostBlackList(token string) error {
 	blacklist := models.BlackList{
-		AccessToken: access_token,
+		Token: token,
 	}
 	if err := r.db.Model(&models.BlackList{}).Create(&blacklist).Error; err != nil {
 		return err

@@ -13,7 +13,7 @@ type User struct {
 }
 
 type BlackList struct {
-	AccessToken string `gorm:"column:access_token"`
+	Token string `gorm:"column:token"`
 }
 
 // BeforeCreateフックでUUIDを生成

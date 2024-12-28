@@ -31,6 +31,7 @@ func AuthRoutes(r *gin.Engine, db *gorm.DB) {
 	{
 		auth.POST("/login", authHandler.Login)
 		auth.POST("/logout", authHandler.Logout)
+		auth.POST("/refresh", authHandler.RefreshToken) //リフレッシュトークンの検証
 	}
 }
 
