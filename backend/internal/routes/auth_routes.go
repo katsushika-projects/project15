@@ -46,7 +46,7 @@ func GroupRoutes(r *gin.Engine, db *gorm.DB) {
 	{
 		groups.POST("", groupHandler.CreateGroup)       //グループ作成
 		groups.DELETE("/:id", groupHandler.DeleteGroup) //グループ削除
-		groups.GET("", groupHandler.GetGroups)          //グループ一覧取得
+		groups.POST("/get", groupHandler.GetGroups)     //グループ一覧取得
 		groups.GET("/:id", groupHandler.GetGroup)       //グループ詳細取得
 	}
 }

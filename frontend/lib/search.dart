@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 import 'ClassSearch.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'signup_login.dart';
+
+class SearchPage extends StatelessWidget {
+  const SearchPage({super.key}); // constを追加
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Search"),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      body: const SearchForm(),
+    );
+  }
+}
 
 class SearchForm extends StatefulWidget {
   const SearchForm({super.key});
@@ -15,7 +31,6 @@ class SearchFormState extends State<SearchForm> {
   final TextEditingController _facultyController = TextEditingController();
   final TextEditingController _departmentController = TextEditingController();
   final TextEditingController _gradeController = TextEditingController();
-  // final TextEditingController _classController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _search() async {
@@ -28,11 +43,14 @@ class SearchFormState extends State<SearchForm> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('http://localhost:8080/groups');
+    final url = Uri.parse('http://localhost:8080/groups/get');
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${TokenManager().accessToken}',
+          },
         body: jsonEncode({
           'university': university,
           'faculty': faculty,

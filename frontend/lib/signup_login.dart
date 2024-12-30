@@ -32,6 +32,18 @@ class AuthPage extends StatelessWidget {
   }
 }
 
+class TokenManager {
+  static final TokenManager _instance = TokenManager._internal(); // 唯一のインスタンスを生成
+  String? accessToken; // アクセストークンを保持
+  String? refreshToken; // リフレッシュトークンを保持
+
+  TokenManager._internal(); // プライベートなコンストラクタ
+
+  factory TokenManager() {
+    return _instance; // 常に同じインスタンスを返す
+  }
+}
+
 // Loginフォーム
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key}); // constを追加
@@ -73,11 +85,13 @@ class LoginFormState extends State<LoginForm> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['access_token'].isNotEmpty || data['refresh_token'].isNotEmpty) {
+        TokenManager().accessToken = data['access_token'];
+        TokenManager().refreshToken = data['refresh_token'];
         if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const SearchForm(),
+              builder: (context) => const SearchPage(),
             ),
           );
         }

@@ -2,6 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+class ClassPage extends StatelessWidget {
+  final String groupId;
+  const ClassPage({super.key, required this.groupId}); // constを追加
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Class"),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      body: ClassSearchPage(groupId: groupId),
+    );
+  }
+}
+
 class ClassSearchPage extends StatefulWidget {
   final String groupId;
 
@@ -56,23 +72,31 @@ class ClassSearchPageState extends State<ClassSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Class Search Results"),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : classes.isEmpty
-              ? const Center(child: Text("No classes found"))
-              : ListView.builder(
-                  itemCount: classes.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(classes[index]['name']),
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : classes.isEmpty
+            ? const Center(child: Text("No classes found"))
+            : ListView.builder(
+                itemCount: classes.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListTile(
+                      title: Text(classes[index]['classname']),
                       subtitle: Text('Class ID: ${classes[index]['id']}'),
-                    );
-                  },
-                ),
-    );
-  }
+                      onTap: () {
+                        // タップ時の処理
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Selected: ${classes[index]['name']}")),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+  );
+}
+
 }
