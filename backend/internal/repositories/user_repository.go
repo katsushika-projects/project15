@@ -58,7 +58,7 @@ func (r *UserRepository) PostBlackList(token string) error {
 
 func (r *UserRepository) AuthBlackList(token string) error {
 	var blacklist models.BlackList
-	if err := r.db.Model(&models.BlackList{}).Where("access_token = ?", token).First(&blacklist).Error; err != nil {
+	if err := r.db.Model(&models.BlackList{}).Where("token = ?", token).First(&blacklist).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// レコードが見つからない場合は正常ケース
 			return nil

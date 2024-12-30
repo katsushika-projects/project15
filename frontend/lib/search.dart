@@ -28,15 +28,120 @@ class SearchForm extends StatefulWidget {
 
 class SearchFormState extends State<SearchForm> {
   final TextEditingController _universityController = TextEditingController();
-  final TextEditingController _facultyController = TextEditingController();
+  final TextEditingController _fcultyController = TextEditingController();
   final TextEditingController _departmentController = TextEditingController();
   final TextEditingController _gradeController = TextEditingController();
   final TextEditingController _classController = TextEditingController();
   bool _isLoading = false;
 
+  Future<void> _createclass(groupId) async {
+    final String classname = _classController.text.trim();
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url = Uri.parse('http://localhost:8080/classes');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${TokenManager().accessToken}',
+        },
+        body: jsonEncode({
+          'classname': classname,
+          "group_id": groupId
+        })
+      );
+
+      if (response.statusCode == 201) {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('作成成功'))
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Server error: ${response.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e'))
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _creategroup() async {
+    final String university = _universityController.text.trim();
+    final String fculty = _fcultyController.text.trim();
+    final String department = _departmentController.text.trim();
+    final String grade = _gradeController.text.trim();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url = Uri.parse('http://localhost:8080/groups');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${TokenManager().accessToken}',
+        },
+        body: jsonEncode({
+          'university': university,
+          'fculty': fculty,
+          'department': department,
+          'grade': grade,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('作成成功'))
+            );
+        }
+      } else {
+        if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Server error: ${response.statusCode}')),
+              );
+            }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e'))
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _search() async {
     final String university = _universityController.text.trim();
-    final String faculty = _facultyController.text.trim();
+    final String fculty = _fcultyController.text.trim();
     final String department = _departmentController.text.trim();
     final String grade = _gradeController.text.trim();
     final String classname = _classController.text.trim();
@@ -55,7 +160,7 @@ class SearchFormState extends State<SearchForm> {
           },
         body: jsonEncode({
           'university': university,
-          'faculty': faculty,
+          'fculty': fculty,
           'department': department,
           'grade': grade,
         }),
@@ -74,7 +179,7 @@ class SearchFormState extends State<SearchForm> {
             },
             body: jsonEncode({
               'classname': classname,
-              'groups_id': groupId,
+              'group_id': groupId,
             }
             ),
           );
@@ -91,8 +196,27 @@ class SearchFormState extends State<SearchForm> {
             }
           } else {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Server error: ${responseClass.statusCode}')),
+              await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: const Text('授業が存在しません。作成しますか？'),
+                    children: [
+                      SimpleDialogOption(
+                        onPressed: () {
+                          _createclass(groupId);
+                        },
+                        child: const Text('作成'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('キャンセル'),
+                      )
+                    ],
+                  );
+                }
               );
             }
           }
@@ -111,8 +235,25 @@ class SearchFormState extends State<SearchForm> {
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Server error: ${response.statusCode}')),
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return SimpleDialog(
+                title: const Text('グループが存在しません。作成しますか？'),
+                children: [
+                  SimpleDialogOption(
+                    onPressed: _creategroup,
+                    child: const Text('作成'),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('キャンセル'),
+                  )
+                ],
+              );
+            }
           );
         }
       }
@@ -147,7 +288,7 @@ class SearchFormState extends State<SearchForm> {
           ),
           const SizedBox(height: 16),
           TextField(
-            controller: _facultyController,
+            controller: _fcultyController,
             decoration: const InputDecoration(
               labelText: 'Faculty',
               border: OutlineInputBorder(),
