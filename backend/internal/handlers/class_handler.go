@@ -99,6 +99,6 @@ func (h *ClassHandler) GetClasses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"groups": classes,
+		"classes": classes,
 	})
 }
