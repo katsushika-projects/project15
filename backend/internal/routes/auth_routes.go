@@ -76,9 +76,9 @@ func Discription(r *gin.Engine, db *gorm.DB) {
 
 	discription := r.Group("/discription")
 	{
-		discription.POST("", discriptHandler.CreateDiscript) //質問、回答投稿
-		discription.GET("", discriptHandler.GetDiscripts)    //スレ一覧取得
-		discription.POST("/:id")                             //スレ削除
+		discription.POST("", discriptHandler.CreateDiscript)   //質問、回答投稿
+		discription.POST("/get", discriptHandler.GetDiscripts) //スレ一覧取得
+		discription.POST("/:id")                               //スレ削除
 	}
 }
 

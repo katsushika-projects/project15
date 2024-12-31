@@ -67,6 +67,6 @@ func (h *DiscriptHandler) GetDiscripts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"groups": discripts,
+		"discripts": discripts,
 	})
 }
