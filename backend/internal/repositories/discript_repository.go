@@ -31,3 +31,15 @@ func (r *DiscriptRepository) GetDiscripts(class_id string) ([]*models.Thread, er
 
 	return discripts, nil
 }
+
+func (r *DiscriptRepository) FindById(id string) (*models.Thread, error) {
+	var thread models.Thread
+	if err := r.db.Where("id = ?", id).First(&thread).Error; err != nil {
+		return nil, err
+	}
+	return &thread, nil
+}
+
+func (r *DiscriptRepository) DeleteThread(thread *models.Thread) error {
+	return r.db.Delete(thread).Error
+}
