@@ -70,3 +70,19 @@ func (h *DiscriptHandler) GetDiscripts(c *gin.Context) {
 		"discripts": discripts,
 	})
 }
+
+func (h *DiscriptHandler) DeleteThread(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	thread_id := c.Param("id")
+	if err := h.discriptService.DeleteDiscript(thread_id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Thread delete successfully"})
+}

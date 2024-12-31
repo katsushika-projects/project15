@@ -34,3 +34,16 @@ func (s *DiscriptService) GetDiscripts(class_id string) ([]*models.Thread, error
 
 	return discripts, nil
 }
+
+func (s *DiscriptService) DeleteDiscript(thread_id string) error {
+	thread, err := s.discriptRepository.FindById(thread_id)
+	if err != nil {
+		return nil
+	}
+
+	if err1 := s.discriptRepository.DeleteThread(thread); err1 != nil {
+		return err1
+	}
+
+	return nil
+}
