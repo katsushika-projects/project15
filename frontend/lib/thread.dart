@@ -16,7 +16,7 @@ class ThreadPage extends StatelessWidget {
         title: const Text('Thread'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
-      body: ThreadForm(classId: classId),
+      body: ThreadForm(classId: classId, className: className,),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -133,8 +133,9 @@ class PostDialog extends StatelessWidget {
 
 class ThreadForm extends StatefulWidget {
   final String classId;
+  final String className;
 
-  const ThreadForm({super.key, required this.classId});
+  const ThreadForm({super.key, required this.classId, required this.className});
 
   @override
   ThreadPageState createState() => ThreadPageState();
@@ -195,6 +196,56 @@ class ThreadPageState extends State<ThreadForm> {
     }
   }
 
+  Future<void> _deleteThread(String threadId) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url = Uri.parse('http://localhost:8080/discription/$threadId');
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${TokenManager().accessToken}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ThreadPage(
+                classId: widget.classId,
+                className: widget.className,
+              ),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Server error: ${response.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e'))
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -215,7 +266,17 @@ class ThreadPageState extends State<ThreadForm> {
             border: Border.all(color: Colors.grey),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(thread['Discript']),
+          child: Row(
+            children: [
+              Text(thread['Discript']),
+              IconButton(
+                onPressed: () async {
+                  await _deleteThread(thread['ID']);
+                },
+                icon: const Icon(Icons.delete),
+                )
+            ],
+          )
         );
       },
     );
