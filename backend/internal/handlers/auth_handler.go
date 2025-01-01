@@ -89,7 +89,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Logout(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -112,11 +112,6 @@ type RefreshToken struct {
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if err := h.authMiddleware.AuthRefreshToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// このリクエストのバリデーションに対してのみカスタムルールを登録

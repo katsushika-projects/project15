@@ -25,7 +25,7 @@ type DiscriptInput struct {
 func (h *DiscriptHandler) CreateDiscript(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -50,7 +50,7 @@ type DiscriptsInput struct {
 func (h *DiscriptHandler) GetDiscripts(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -74,7 +74,7 @@ func (h *DiscriptHandler) GetDiscripts(c *gin.Context) {
 func (h *DiscriptHandler) DeleteThread(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 

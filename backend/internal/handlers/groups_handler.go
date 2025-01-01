@@ -27,7 +27,7 @@ type GroupInput struct {
 func (h *GroupHandler) CreateGroup(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *GroupHandler) CreateGroup(c *gin.Context) {
 func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 func (h *GroupHandler) GetGroups(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -89,7 +89,7 @@ func (h *GroupHandler) GetGroups(c *gin.Context) {
 func (h *GroupHandler) GetGroup(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
