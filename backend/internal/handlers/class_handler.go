@@ -82,7 +82,7 @@ func (h *ClassHandler) GetClass(c *gin.Context) {
 func (h *ClassHandler) GetClasses(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if err := h.authMiddleware.AuthAccessToken(authHeader); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
