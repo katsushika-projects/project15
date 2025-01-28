@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'signup_login.dart';
 import 'thread.dart';
+import 'search.dart';
 
 class ClassPage extends StatelessWidget {
   final String classId;
@@ -17,6 +18,19 @@ class ClassPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Class"),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SearchPage(),
+                ),
+              );
+          },
+          ),
       ),
       body: ClassSearchPage(classId: classId),
     );
@@ -129,6 +143,7 @@ class ClassSearchPageState extends State<ClassSearchPage> {
               ? const CircularProgressIndicator()
               : ElevatedButton(
                 onPressed: () {
+                  Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(

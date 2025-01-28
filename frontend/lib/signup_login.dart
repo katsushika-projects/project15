@@ -88,6 +88,7 @@ class LoginFormState extends State<LoginForm> {
         TokenManager().accessToken = data['access_token'];
         TokenManager().refreshToken = data['refresh_token'];
         if (mounted) {
+          Navigator.pop(context);
           Navigator.push(
             context,
             MaterialPageRoute(

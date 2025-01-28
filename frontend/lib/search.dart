@@ -13,6 +13,7 @@ class SearchPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Search"),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        automaticallyImplyLeading: false,
       ),
       body: const SearchForm(),
     );
@@ -187,6 +188,7 @@ class SearchFormState extends State<SearchForm> {
             final classData = jsonDecode(responseClass.body);
             final classId = classData['classes'][0]['ID'];
             if (mounted) {
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(

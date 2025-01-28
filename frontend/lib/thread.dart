@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'signup_login.dart';
+import 'search.dart';
 
 class ThreadPage extends StatelessWidget {
   final String classId;
@@ -15,6 +17,19 @@ class ThreadPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Thread'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.home),
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SearchPage(),
+                ),
+              );
+          },
+          ),
       ),
       body: ThreadForm(classId: classId, className: className,),
       floatingActionButton: FloatingActionButton(
@@ -213,16 +228,38 @@ class ThreadPageState extends State<ThreadForm> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          Navigator.pop(context);
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ThreadPage(
-                classId: widget.classId,
-                className: widget.className,
-              ),
-            ),
-          );
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return SimpleDialog(
+                title: const Text('本当に削除しますか？'),
+                children: [
+                  SimpleDialogOption(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => ThreadPage(
+                            classId: widget.classId,
+                            className: widget.className,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('削除'),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('キャンセル'),
+                  )
+                ],
+              );
+            }
+            );
         }
       } else {
         if (mounted) {
